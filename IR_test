@@ -1,0 +1,148 @@
+
+////////////////////////////////////////IRremote receiver
+
+#define DECODE_NEC          // Includes Apple and Onkyo
+#include <Arduino.h>
+
+/*
+   Define macros for input and output pin etc.
+*/
+#include "PinDefinitionsAndMore.h"
+
+#include <IRremote.hpp>
+
+
+////////////////////////////////////////DFRobotDFPlayerMini
+#include "Arduino.h"
+#include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
+
+SoftwareSerial mySoftwareSerial(11, 12); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+void printDetail(uint8_t type, int value);
+
+long timer = 0;
+int playing = 0;
+
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+
+  Serial.begin(9600);
+
+  // initialize digital pins
+  for (int i = 2; i < 11; i++)
+    pinMode(i, OUTPUT);
+
+  triller(3);
+
+  setupPlayer();
+  setupIRRemote();
+
+  delay(1000);
+  triller(3);
+  triller(4);
+  triller(5);
+
+  delay(500);
+
+  timer = millis() + 4000 + random(2000);
+}
+
+void loop() {
+
+  if ( playing == 0 )
+  {
+    IRreceive();
+  }
+  else if (playing == 1)
+  {
+    for (int i = 2; i < 10; i++)
+    {
+      triller(i);
+    }
+  }
+}
+
+void triller(int which) {
+  digitalWrite(which, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(which + 1, HIGH);
+  delay(500);                       // wait for a second
+  digitalWrite(which, LOW);    // turn the LED off by making the voltage LOW
+  digitalWrite(which + 1, LOW);
+  delay(50);                       // wait for a second
+}
+
+void setupPlayer() {
+
+  mySoftwareSerial.begin(9600);
+
+  Serial.println();
+  Serial.println(F("DFRobot DFPlayer Mini Demo"));
+  Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+
+  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while (true) {
+      delay(0); // Code to compatible with ESP8266 watch dog.
+    }
+  }
+  Serial.println(F("DFPlayer Mini online."));
+
+  myDFPlayer.volume(20);  //Set volume value. From 0 to 30
+  myDFPlayer.play(1);  //Play the first mp3
+
+}
+
+void setupIRRemote() {
+
+  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+
+  // Start the receiver and if not 3. parameter specified, take LED_BUILTIN pin from the internal boards definition as default feedback LED
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+
+  Serial.print(F("Ready to receive IR signals of protocols: "));
+  printActiveIRProtocols(&Serial);
+  Serial.print(F("at pin "));
+  Serial.println(IR_RECEIVE_PIN);
+}
+
+void IRreceive() {
+
+  /*
+     Check if received data is available and if yes, try to decode it.
+     Decoded result is in the IrReceiver.decodedIRData structure.
+
+     E.g. command is in IrReceiver.decodedIRData.command
+     address is in command is in IrReceiver.decodedIRData.address
+     and up to 32 bit raw data in IrReceiver.decodedIRData.decodedRawData
+  */
+  if (IrReceiver.decode()) {
+
+    // Print a short summary of received data
+    IrReceiver.printIRResultShort(&Serial);
+    if (IrReceiver.decodedIRData.protocol == UNKNOWN) {
+      // We have an unknown protocol here, print more info
+      IrReceiver.printIRResultRawFormatted(&Serial, true);
+    }
+    Serial.println();
+
+    /*
+       !!!Important!!! Enable receiving of the next value,
+       since receiving has stopped after the end of the current received data packet.
+    */
+    IrReceiver.resume(); // Enable receiving of the next value
+
+    /*
+       Finally, check the received data and perform actions according to the received command
+    */
+    if (IrReceiver.decodedIRData.command == 0x10) {
+      myDFPlayer.play(1);
+      playing = 1;
+    } else if (IrReceiver.decodedIRData.command == 0x11) {
+      // do something else
+    }
+  }
+}
