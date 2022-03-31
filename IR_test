@@ -14,6 +14,8 @@
 
 #include <IRremote.hpp>
 
+int receiverPIN = 13;
+
 
 ////////////////////////////////////////DFRobotDFPlayerMini
 #include "Arduino.h"
@@ -29,10 +31,11 @@ int playing = 0;
 int counter = 0;
 
 
+
 // the setup function runs once when you press reset or power the board
 void setup() {
-  
- Serial.begin(115200);
+
+  Serial.begin(115200);
 
   // initialize digital pins
   for (int i = 2; i < 11; i++)
@@ -51,29 +54,42 @@ void setup() {
   delay(500);
 
   timer = millis() + 4000 + random(2000);
+
+   myDFPlayer.play(1);
+   delay(2000);
+     myDFPlayer.pause();
+   
 }
 
 void loop() {
 
-  if ( playing == 0 )
+  if ( playing == 0 ) //only receiving and starting play when not playing
   {
     IRreceive();
-    if ((counter++)%55 == 1){
+    /*
+      if ((counter++)%55 == 1){
       digitalWrite(5, HIGH);
       delay(5);
       digitalWrite(5, LOW);
-    } else if ( counter == 10000)
-    {
+      } else if ( counter == 10000)
+      {
       //myDFPlayer.play(1);
       counter = 0;
-    }
+      }
+    */
   }
   else if (playing == 1)
   {
-    for (int i = 2; i < 10; i++)
-    {
-      triller(i);
-    }
+    for (int j = 0; j < 5; j++)//just making time for playing
+      for (int i = 2; i < 10; i++)
+      {
+        triller(i);
+        delay(100);
+      }
+    playing == 0; //start receiving again
+    myDFPlayer.pause();
+    delay(5000); //just a bit of pausing
+     Serial.println("paused again");
   }
 }
 
@@ -105,7 +121,7 @@ void setupPlayer() {
   Serial.println(F("DFPlayer Mini online."));
 
   myDFPlayer.volume(20);  //Set volume value. From 0 to 30
- // myDFPlayer.play(1);  //Play the first mp3
+  // myDFPlayer.play(1);  //Play the first mp3
 
 }
 
@@ -114,24 +130,16 @@ void setupIRRemote() {
   Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
 
   // Start the receiver and if not 3. parameter specified, take LED_BUILTIN pin from the internal boards definition as default feedback LED
-  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+  IrReceiver.begin(receiverPIN, ENABLE_LED_FEEDBACK);
 
   Serial.print(F("Ready to receive IR signals of protocols: "));
   printActiveIRProtocols(&Serial);
   Serial.print(F("at pin "));
-  Serial.println(IR_RECEIVE_PIN);
+  Serial.println(receiverPIN);
 }
 
 void IRreceive() {
 
-  /*
-     Check if received data is available and if yes, try to decode it.
-     Decoded result is in the IrReceiver.decodedIRData structure.
-
-     E.g. command is in IrReceiver.decodedIRData.command
-     address is in command is in IrReceiver.decodedIRData.address
-     and up to 32 bit raw data in IrReceiver.decodedIRData.decodedRawData
-  */
   if (IrReceiver.decode()) {
 
     // Print a short summary of received data
@@ -140,10 +148,19 @@ void IRreceive() {
       // We have an unknown protocol here, print more info
       IrReceiver.printIRResultRawFormatted(&Serial, true);
     }
-    Serial.println();
- myDFPlayer.play(1);
- delay(10000);
-      //playing = 1;
+    Serial.println("received something------");
+    //myDFPlayer.play(1);
+    //delay(10000);
+    //playing = 1;
+
+         digitalWrite(5, HIGH);
+      delay(50);
+      digitalWrite(5, LOW);
+      delay(50);
+      myDFPlayer.start();
+      myDFPlayer.play(1);
+      
+      playing = 1;
     /*
        !!!Important!!! Enable receiving of the next value,
        since receiving has stopped after the end of the current received data packet.
@@ -153,9 +170,10 @@ void IRreceive() {
     /*
        Finally, check the received data and perform actions according to the received command
     */
-    if (IrReceiver.decodedIRData.command > 0x10) {
-      myDFPlayer.play(1);
-      playing = 1;
+    if (IrReceiver.decodedIRData.command > 0x01) {
+     // myDFPlayer.play(1);
+     // playing = 1;
+
     } else if (IrReceiver.decodedIRData.command == 0x11) {
       // do something else
     }
