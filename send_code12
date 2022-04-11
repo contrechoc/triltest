@@ -1,0 +1,72 @@
+/*
+   SimpleSender.cpp
+
+    Demonstrates sending IR codes in standard format with address and command
+    An extended example for sending can be found as SendDemo.
+
+    Copyright (C) 2020-2021  Armin Joachimsmeyer
+    armin.joachimsmeyer@gmail.com
+
+    This file is part of Arduino-IRremote https://github.com/Arduino-IRremote/Arduino-IRremote.
+
+    MIT License
+*/
+#include <Arduino.h>
+
+/*
+   Define macros for input and output pin etc.
+*/
+
+
+//#define SEND_PWM_BY_TIMER
+//#define USE_NO_SEND_PWM
+//#define NO_LED_FEEDBACK_CODE // saves 418 bytes program space
+
+#include <IRremote.hpp>
+
+uint16_t sAddress = 0x0102;
+uint8_t sCommand = 0x34;
+uint8_t sRepeats = 0;
+
+int counter;
+
+void setup() {
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(115200);
+
+  // Just to know which program is running on my Arduino
+  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+
+}
+
+void loop() {
+
+  IRSEND(5);
+  IRSEND(4);
+  IRSEND(6);
+
+}
+
+void IRSEND(int whichPIN) {
+
+  IrSender.begin(whichPIN); // Start with IR_SEND_PIN as send pin and if NO_LED_FEEDBACK_CODE is NOT defined, enable feedback LED at default feedback LED pin
+  Serial.print(F("Ready to send IR signals at pin "));
+  Serial.println(whichPIN);
+
+  delay(500 );
+
+  sAddress = 0x102;
+  sCommand = 0x12;
+
+  IrSender.sendNEC(sAddress, sCommand, sRepeats);
+
+  sRepeats++;
+  // clip repeats at 4
+  if (sRepeats > 4) {
+    sRepeats = 4;
+  }
+
+  delay(100 );
+
+}
