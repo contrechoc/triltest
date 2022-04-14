@@ -73,6 +73,8 @@ static unsigned long timer = millis();
 static unsigned long timer2 = millis();
 static unsigned long timer3 = millis();
 
+static unsigned long timerIR = millis() + 10000;
+
 int counter;
 int trackNumber = 8;
 
@@ -178,11 +180,22 @@ void loop()
       }
     }
 
+  if ( timerIR < millis()) //this is starting up a random track if there is no IR signal for too long
+  {
+    if (plays == 0) {
+      test == 1;
+    }
+    else
+    {
+      timerIR = millis() + 10000;
+    }
+  }
+
 
   if (test == 1) //without IRreceiver - start play
     if (plays == 0)
     {
-      Serial.println("test started");
+      Serial.println("test started for playing without receiving IR signal");
       plays = 1;
       trackNumber = 0;
       timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
@@ -217,15 +230,15 @@ void loop()
     {
       track0(); //track0 behavior
     }
-     else if ( trackNumber == 1) //real soundTrack 2
+    else if ( trackNumber == 1) //real soundTrack 2
     {
       track1(); //track0 behavior
     }
-     else if ( trackNumber == 2) //real soundTrack 3
+    else if ( trackNumber == 2) //real soundTrack 3
     {
       track2(); //track0 behavior
     }
-     else if ( trackNumber == 3) //real soundTrack 4 - welcoming and checking soundfile
+    else if ( trackNumber == 3) //real soundTrack 4 - welcoming and checking soundfile
     {
       track3(); //track0 behavior
     }
@@ -477,15 +490,15 @@ void track0() {
   }
 }
 
-void track1(){
+void track1() {
   track0(); //at the moment the same - file 2 and 3 and 4 are still lacking
 }
 
-void track2(){
+void track2() {
   track0(); //at the moment the same - file 2 and 3 and 4 are still lacking
 }
 
-void track3(){ ///welcoming track
+void track3() { ///welcoming track
   track0(); //at the moment the same - file 2 and 3 and 4 are still lacking
 }
 
