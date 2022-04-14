@@ -38,7 +38,7 @@
 //data first soundtrack
 long trackOneTimes[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
 int trackCode[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 5, 4, 2, 4, 9, 6, 2, 3, 10, 7, 2, 2, 2, 9, 4, 14, 11, 15, 9, 5, 46, 3, 3, 52, 1, 35, 43, 31, 7, 20, 3, 16, 12, 50, 18, 35, 89 };
-char *myStrings[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " stem", " ruis", " p", " fluitje", " hijg", " high baby voice", " hard", " low", " low", " hard", " hard", " low", " hard", " hard", " low", " stem", " p  ", " p  ", " max", " beat", "  minimum", " hard", " low", " p  ", " low", " explosie", " beat", " low", " low", " low fluit", " minimum", " voice", " voice", " klok", " voice", " beat", " quiet ", " voice", " beat start", " end beat", " quieter", " irregular beat ", " voice beat", " rust", " beat ", " quiet", " beat fast    ", " voice", " beat", " after voices", " irregular sounds", " dies out", " "  };
+//char *myStrings[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " stem", " ruis", " p", " fluitje", " hijg", " high baby voice", " hard", " low", " low", " hard", " hard", " low", " hard", " hard", " low", " stem", " p  ", " p  ", " max", " beat", "  minimum", " hard", " low", " p  ", " low", " explosie", " beat", " low", " low", " low fluit", " minimum", " voice", " voice", " klok", " voice", " beat", " quiet ", " voice", " beat start", " end beat", " quieter", " irregular beat ", " voice beat", " rust", " beat ", " quiet", " beat fast    ", " voice", " beat", " after voices", " irregular sounds", " dies out", " "  };
 
 //data second soundtrack (not implemented yet)
 long trackOneTimes1[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
@@ -49,7 +49,7 @@ char *myStrings1[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " 
 long trackOneTimes2[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
 int trackCode2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 5, 4, 2, 4, 9, 6, 2, 3, 10, 7, 2, 2, 2, 9, 4, 14, 11, 15, 9, 5, 46, 3, 3, 52, 1, 35, 43, 31, 7, 20, 3, 16, 12, 50, 18, 35, 89 };
 char *myStrings2[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " stem", " ruis", " p", " fluitje", " hijg", " high baby voice", " hard", " low", " low", " hard", " hard", " low", " hard", " hard", " low", " stem", " p  ", " p  ", " max", " beat", "  minimum", " hard", " low", " p  ", " low", " explosie", " beat", " low", " low", " low fluit", " minimum", " voice", " voice", " klok", " voice", " beat", " quiet ", " voice", " beat start", " end beat", " quieter", " irregular beat ", " voice beat", " rust", " beat ", " quiet", " beat fast    ", " voice", " beat", " after voices", " irregular sounds", " dies out", " "  };
-
+ 
 
 int timeCounter = 0; //trackOneTimes[timeCounter++];
 long totalTimeCOunter = 0;
@@ -80,7 +80,7 @@ int trackNumber = 8;
 
 #define IR_RECEIVE_PIN  13
 
-int test = 1;
+int test = 0;
 int upper = 0;
 int divider = 1;
 
@@ -120,8 +120,8 @@ void setup()
     triller(i);
   }
 
-//------------------with or-----without IR receiver
-  if (test == 0) 
+  //------------------with or-----without IR receiver
+  if (test == 0)
   {
     IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
     Serial.print(("Ready to receive IR signals of protocols: "));
@@ -132,8 +132,8 @@ void setup()
 
 void loop()
 {
-//----------------------------------------------------------------with IR receiver
-  if (test == 0) 
+  //----------------------------------------------------------------with IR receiver
+  if (test == 0)
     if (plays == 0)
     {
       if (IrReceiver.decode()) {
@@ -152,25 +152,16 @@ void loop()
         Serial.println(ir);
 
         if (ir == 0x10) {
-          Serial.println("start track0");
+          Serial.println("start track0 0x10");
           plays = 1;
           //delay (500);
           trackNumber = 0;
           getVibe( 6, 100, 1); getVibe( 6, 100, 1);
           timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
-          myDFPlayer.play(0);
+          myDFPlayer.play(2);
 
         } else if (ir == 0x11) {
-          Serial.println("start track1");
-          plays = 1;
-          //delay (500);
-          trackNumber = 0;
-          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
-          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
-          myDFPlayer.play(1);
-        }
-        else if (ir == 0x12) {
-          Serial.println("start track2");
+          Serial.println("start track1 0x11");
           plays = 1;
           //delay (500);
           trackNumber = 0;
@@ -178,22 +169,33 @@ void loop()
           timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
           myDFPlayer.play(2);
         }
-          else if (ir == 0x14) {
-          Serial.println("start welocme track");
+        else if (ir == 0x12) {
+          Serial.println("start track2 0x12");
           plays = 1;
           //delay (500);
           trackNumber = 0;
           getVibe( 6, 100, 1); getVibe( 6, 100, 1);
           timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
-          myDFPlayer.play(3);
+          myDFPlayer.play(2);
+        }
+        else if (ir == 0x14) {
+          Serial.println("start welocme track 0x14");
+          plays = 1;
+          //delay (500);
+          trackNumber = 0;
+          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
+          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+          myDFPlayer.play(2);
         }
       }
     }
-//-----------------------------------//this is starting up a random track if there is no IR signal for too long
-  if ( timerIR < millis()) 
+  //-----------------------------------//this is starting up a random track if there is no IR signal for too long
+  if ( timerIR < millis())
   {
     if (plays == 0) {
-      test == 1;
+      test = 1;
+      getVibe(7, 500, 1); getVibe(5, 500, 1); getVibe(7, 500, 1); getVibe(5, 500, 1);
+      Serial.println("start track without IR signal");
     }
     else
     {
@@ -201,15 +203,15 @@ void loop()
     }
   }
 
-//---------------------------without IRreceiver - start play
-  if (test == 1) 
+  //---------------------------without IRreceiver - start play
+  if (test == 1)
     if (plays == 0)
     {
       Serial.println("test started for playing without receiving IR signal");
       plays = 1;
       trackNumber = 0;
       timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
-      myDFPlayer.play(0);
+      myDFPlayer.play(2);
       test = 2;
     }
 
@@ -290,8 +292,8 @@ void track0() {
     Serial.print(timer2   ); //totalTimeCOunter
     Serial.print("\t  -  ");
     Serial.print(millis()   );
-    Serial.print("\t  -  ");
-    Serial.println(myStrings[timeCounter]);
+    Serial.println("\t  -  ");
+    //Serial.println(myStrings[timeCounter]);
 
     timeCounter++;
 
