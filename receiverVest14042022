@@ -114,13 +114,14 @@ void setup()
   myDFPlayer.volume(20);  //Set volume value (0~30).
   //myDFPlayer.play(2);
 
-  //trillll
+  //--------------------------------trillll------------to indicate health
   for (int i = 2; i < 3; i++)
   {
     triller(i);
   }
 
-  if (test == 0) //without IR receiver
+//------------------with or-----without IR receiver
+  if (test == 0) 
   {
     IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
     Serial.print(("Ready to receive IR signals of protocols: "));
@@ -131,8 +132,8 @@ void setup()
 
 void loop()
 {
-
-  if (test == 0) //with IR receiver
+//----------------------------------------------------------------with IR receiver
+  if (test == 0) 
     if (plays == 0)
     {
       if (IrReceiver.decode()) {
@@ -150,7 +151,7 @@ void loop()
         int ir =  IrReceiver.decodedIRData.command;
         Serial.println(ir);
 
-        if (ir == 0x11) {
+        if (ir == 0x10) {
           Serial.println("start track0");
           plays = 1;
           //delay (500);
@@ -159,7 +160,7 @@ void loop()
           timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
           myDFPlayer.play(0);
 
-        } else if (ir == 0x10) {
+        } else if (ir == 0x11) {
           Serial.println("start track1");
           plays = 1;
           //delay (500);
@@ -177,10 +178,19 @@ void loop()
           timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
           myDFPlayer.play(2);
         }
+          else if (ir == 0x14) {
+          Serial.println("start welocme track");
+          plays = 1;
+          //delay (500);
+          trackNumber = 0;
+          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
+          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+          myDFPlayer.play(3);
+        }
       }
     }
-
-  if ( timerIR < millis()) //this is starting up a random track if there is no IR signal for too long
+//-----------------------------------//this is starting up a random track if there is no IR signal for too long
+  if ( timerIR < millis()) 
   {
     if (plays == 0) {
       test == 1;
@@ -191,8 +201,8 @@ void loop()
     }
   }
 
-
-  if (test == 1) //without IRreceiver - start play
+//---------------------------without IRreceiver - start play
+  if (test == 1) 
     if (plays == 0)
     {
       Serial.println("test started for playing without receiving IR signal");
@@ -243,7 +253,6 @@ void loop()
       track3(); //track0 behavior
     }
 
-
   if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   }
@@ -251,7 +260,7 @@ void loop()
 }
 
 
-//-------------------sound tracks-----------------------
+//-------------------sound tracks to vibration patterns-----------------------
 
 void track0() {
 
@@ -277,7 +286,6 @@ void track0() {
     Serial.print(trackOneTimes[timeCounter ]);
     Serial.print("\t  -  ");
     Serial.print(( trackOneTimes[timeCounter ] - trackOneTimes[timeCounter - 1 ]));
-
     Serial.print("\t  -  ");
     Serial.print(timer2   ); //totalTimeCOunter
     Serial.print("\t  -  ");
@@ -502,7 +510,8 @@ void track3() { ///welcoming track
   track0(); //at the moment the same - file 2 and 3 and 4 are still lacking
 }
 
-// the loop function runs over and over again forever
+//-------------------soundPatterns-----------------------
+
 void triller(int which) {
   digitalWrite(which, HIGH);   // turn the LED on (HIGH is the voltage level)
   digitalWrite(which + 1, HIGH);
@@ -520,8 +529,6 @@ void TrilAll() {
   for (int i = 2; i < 3; i++)
     digitalWrite(i, LOW);
 }
-
-//-------------------soundPatterns-----------------------
 
 void getVibe(int whichPIN, int whichLength, int addDelay) {
   digitalWrite(whichPIN, HIGH);
