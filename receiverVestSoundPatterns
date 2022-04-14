@@ -1,30 +1,38 @@
+/***************************************************
+  DFPlayer - A Mini MP3 Player For Arduino
+  <https://www.dfrobot.com/product-1121.html>
+
+ ***************************************************
+  This example shows the all the function of library for DFPlayer.
+
+  Created 2016-12-07
+  By [Angelo qiao](Angelo.qiao@dfrobot.com)
+
+  GNU Lesser General Public License.
+  See <http://www.gnu.org/licenses/> for details.
+  All above must be included in any redistribution
+ ****************************************************/
+
+/***********Notice and Trouble shooting***************
+  1.Connection and Diagram can be found here
+  <https://www.dfrobot.com/wiki/index.php/DFPlayer_Mini_SKU:DFR0299#Connection_Diagram>
+  2.This code is tested on Arduino Uno, Leonardo, Mega boards.
+ ****************************************************/
+
+/*
+ * Helper macro for getting a macro definition as string
+ */
+#if !defined(STR_HELPER)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#endif
 
 #include "Arduino.h"
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 
-//#define DECODE_DENON        // Includes Sharp
-//#define DECODE_JVC
-//#define DECODE_KASEIKYO
-//#define DECODE_PANASONIC    // the same as DECODE_KASEIKYO
-//#define DECODE_LG
 #define DECODE_NEC          // Includes Apple and Onkyo
-//#define DECODE_SAMSUNG
-//#define DECODE_SONY
-//#define DECODE_RC5
-//#define DECODE_RC6
-
-//#define DECODE_BOSEWAVE
-//#define DECODE_LEGO_PF
-//#define DECODE_MAGIQUEST
-//#define DECODE_WHYNTER
-
-//#define DECODE_DISTANCE     // universal decoder for pulse width or pulse distance protocols
-//#define DECODE_HASH         // special decoder for all protocols
-
-//#define DEBUG // Activate this for lots of lovely debug output from the decoders.
-//#define INFO                // To see valuable informations from universal decoder for pulse width or pulse distance protocols
-
+ 
 #include <Arduino.h>
 
 long trackOneTimes[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
@@ -41,7 +49,7 @@ volatile long  baseTime;
 */
 
 #include <IRremote.hpp>
-#include "PinDefinitionsAndMore.h"
+
 
 SoftwareSerial mySoftwareSerial(11, 12); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
@@ -69,18 +77,15 @@ void setup()
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
 
-  Serial.println();
-  Serial.println(F("DFRobot DFPlayer Mini Demo"));
-  Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+  Serial.println(("Initializing DFPlayer ... (May take 3~5 seconds)"));
 
   if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
-    Serial.println(F("Unable to begin:"));
-    Serial.println(F("1.Please recheck the connection!"));
-    Serial.println(F("2.Please insert the SD card!"));
+    Serial.println(("Unable to begin:"));
+    Serial.println(("1.Please recheck the connection!"));
+    Serial.println(("2.Please insert the SD card!"));
     while (true);
   }
-  Serial.println(F("DFPlayer Mini online."));
-
+  Serial.println(("DFPlayer Mini online."));
 
   for (int i = 2; i < 11; i++)
     pinMode(i, OUTPUT);
@@ -105,16 +110,15 @@ void setup()
   {
     IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
 
-    Serial.print(F("Ready to receive IR signals of protocols: "));
+    Serial.print(("Ready to receive IR signals of protocols: "));
     printActiveIRProtocols(&Serial);
-    Serial.println(F("at pin " STR(IR_RECEIVE_PIN)));
+    Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
   }
 
 }
 
 void loop()
 {
-
 
   if (test == 0)
     if (plays == 0)
@@ -230,17 +234,6 @@ void loop()
       }
 
       if ( timer2 < millis() ) {
-
-        /*
-                if ( timeCounter != 9 )
-                {
-                   // getVibe( 6, 100, 1);
-                }
-                else
-                {
-                   //  getVibe( 6, 100, 1);
-                }
-        */
 
         timer2 = millis() +  ( trackOneTimes[timeCounter ] - trackOneTimes[timeCounter - 1 ]) * 1000;
 
@@ -471,19 +464,19 @@ void loop()
 void printDetail(uint8_t type, int value) {
   switch (type) {
     case TimeOut:
-      Serial.println(F("Time Out!"));
+      Serial.println(("Time Out!"));
       break;
     case WrongStack:
-      Serial.println(F("Stack Wrong!"));
+      Serial.println(("Stack Wrong!"));
       break;
     case DFPlayerCardInserted:
-      Serial.println(F("Card Inserted!"));
+      Serial.println(("Card Inserted!"));
       break;
     case DFPlayerCardRemoved:
-      Serial.println(F("Card Removed!"));
+      Serial.println(("Card Removed!"));
       break;
     case DFPlayerCardOnline:
-      Serial.println(F("Card Online!"));
+      Serial.println(("Card Online!"));
       break;
     case DFPlayerUSBInserted:
       Serial.println("USB Inserted!");
@@ -492,35 +485,35 @@ void printDetail(uint8_t type, int value) {
       Serial.println("USB Removed!");
       break;
     case DFPlayerPlayFinished:
-      Serial.print(F("Number:"));
+      Serial.print(("Number:"));
       Serial.print(value);
-      Serial.println(F(" Play Finished!"));
+      Serial.println((" Play Finished!"));
       plays = 0;
       delay(2000);
       break;
     case DFPlayerError:
-      Serial.print(F("DFPlayerError:"));
+      Serial.print(("DFPlayerError:"));
       switch (value) {
         case Busy:
-          Serial.println(F("Card not found"));
+          Serial.println(("Card not found"));
           break;
         case Sleeping:
-          Serial.println(F("Sleeping"));
+          Serial.println(("Sleeping"));
           break;
         case SerialWrongStack:
-          Serial.println(F("Get Wrong Stack"));
+          Serial.println(("Get Wrong Stack"));
           break;
         case CheckSumNotMatch:
-          Serial.println(F("Check Sum Not Match"));
+          Serial.println(("Check Sum Not Match"));
           break;
         case FileIndexOut:
-          Serial.println(F("File Index Out of Bound"));
+          Serial.println(("File Index Out of Bound"));
           break;
         case FileMismatch:
-          Serial.println(F("Cannot Find File"));
+          Serial.println(("Cannot Find File"));
           break;
         case Advertise:
-          Serial.println(F("In Advertise"));
+          Serial.println(("In Advertise"));
           break;
         default:
           break;
