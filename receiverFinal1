@@ -1,0 +1,874 @@
+/***************************************************
+  DFPlayer - A Mini MP3 Player For Arduino
+  <https://www.dfrobot.com/product-1121.html>
+
+ ***************************************************
+  This example shows the all the function of library for DFPlayer.
+
+  Created 2016-12-07
+  By [Angelo qiao](Angelo.qiao@dfrobot.com)
+
+  GNU Lesser General Public License.
+  See <http://www.gnu.org/licenses/> for details.
+  All above must be included in any redistribution
+ ****************************************************/
+
+/***********Notice and Trouble shooting***************
+  1.Connection and Diagram can be found here
+  <https://www.dfrobot.com/wiki/index.php/DFPlayer_Mini_SKU:DFR0299#Connection_Diagram>
+  2.This code is tested on Arduino Uno, Leonardo, Mega boards.
+ ****************************************************/
+
+/*
+   Helper macro for getting a macro definition as string
+*/
+#if !defined(STR_HELPER)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#endif
+
+#include "Arduino.h"
+#include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
+
+#define DECODE_NEC          // Includes Apple and Onkyo
+
+#include <Arduino.h>
+
+//data first soundtrack
+long trackOneTimes[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
+int trackCode[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 5, 4, 2, 4, 9, 6, 2, 3, 10, 7, 2, 2, 2, 9, 4, 14, 11, 15, 9, 5, 46, 3, 3, 52, 1, 35, 43, 31, 7, 20, 3, 16, 12, 50, 18, 35, 89 };
+//char *myStrings[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " stem", " ruis", " p", " fluitje", " hijg", " high baby voice", " hard", " low", " low", " hard", " hard", " low", " hard", " hard", " low", " stem", " p  ", " p  ", " max", " beat", "  minimum", " hard", " low", " p  ", " low", " explosie", " beat", " low", " low", " low fluit", " minimum", " voice", " voice", " klok", " voice", " beat", " quiet ", " voice", " beat start", " end beat", " quieter", " irregular beat ", " voice beat", " rust", " beat ", " quiet", " beat fast    ", " voice", " beat", " after voices", " irregular sounds", " dies out", " "  };
+
+//data second soundtrack (not implemented yet)
+long trackOneTimes1[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
+int trackCode1[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 5, 4, 2, 4, 9, 6, 2, 3, 10, 7, 2, 2, 2, 9, 4, 14, 11, 15, 9, 5, 46, 3, 3, 52, 1, 35, 43, 31, 7, 20, 3, 16, 12, 50, 18, 35, 89 };
+char *myStrings1[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " stem", " ruis", " p", " fluitje", " hijg", " high baby voice", " hard", " low", " low", " hard", " hard", " low", " hard", " hard", " low", " stem", " p  ", " p  ", " max", " beat", "  minimum", " hard", " low", " p  ", " low", " explosie", " beat", " low", " low", " low fluit", " minimum", " voice", " voice", " klok", " voice", " beat", " quiet ", " voice", " beat start", " end beat", " quieter", " irregular beat ", " voice beat", " rust", " beat ", " quiet", " beat fast    ", " voice", " beat", " after voices", " irregular sounds", " dies out", " "  };
+
+//data third soundtrack (not implemented yet)
+long trackOneTimes2[] = {3, 3, 9, 13, 17, 24, 27, 29, 35, 49, 65, 69, 74, 82, 91, 97, 98, 103, 107, 109, 113, 116, 122, 127, 128, 130, 133, 136, 143, 145, 150, 152, 154, 156, 158, 165, 169, 183, 190, 194, 209, 214, 218, 223, 269, 272, 275, 327, 328, 363, 406, 437, 444, 464, 467, 483, 495, 545, 563, 598,  };
+int trackCode2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 5, 4, 2, 4, 9, 6, 2, 3, 10, 7, 2, 2, 2, 9, 4, 14, 11, 15, 9, 5, 46, 3, 3, 52, 1, 35, 43, 31, 7, 20, 3, 16, 12, 50, 18, 35, 89 };
+char *myStrings2[]  = {"", " ph", " pl", " pll", " p", " p", " d", " gesnik", " stem", " ruis", " p", " fluitje", " hijg", " high baby voice", " hard", " low", " low", " hard", " hard", " low", " hard", " hard", " low", " stem", " p  ", " p  ", " max", " beat", "  minimum", " hard", " low", " p  ", " low", " explosie", " beat", " low", " low", " low fluit", " minimum", " voice", " voice", " klok", " voice", " beat", " quiet ", " voice", " beat start", " end beat", " quieter", " irregular beat ", " voice beat", " rust", " beat ", " quiet", " beat fast    ", " voice", " beat", " after voices", " irregular sounds", " dies out", " "  };
+
+
+int timeCounter = 0; //trackOneTimes[timeCounter++];
+long totalTimeCOunter = 0;
+long  baseTime;
+
+/*
+   Define macros for input and output pin etc.
+*/
+
+#include <IRremote.hpp>
+
+SoftwareSerial mySoftwareSerial(11, 12); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+void printDetail(uint8_t type, int value);
+
+int plays = 0;
+int h;
+
+static unsigned long timer = millis();
+static unsigned long timer2 = millis();
+static unsigned long timer3 = millis();
+static unsigned long timer4 = millis();
+static unsigned long timer5 = millis();
+
+static unsigned long timerIR = millis();
+
+int counter;
+int trackNumber = 8;
+
+#define IR_RECEIVE_PIN  13
+
+int test = 0;
+int upper = 0;
+int divider = 1;
+
+void setup()
+{
+
+  mySoftwareSerial.begin(9600);
+  Serial.begin(115200);
+
+  Serial.println(("Initializing DFPlayer ... (May take 3~5 seconds)"));
+
+  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+    Serial.println(("Unable to begin:"));
+    Serial.println(("1.Please recheck the connection!"));
+    Serial.println(("2.Please insert the SD card!"));
+    while (true);
+  }
+  Serial.println(("DFPlayer Mini online."));
+
+  for (int i = 2; i < 11; i++)
+    pinMode(i, OUTPUT);
+
+  randomVibe(  5, 500);
+  Serial.println("end random");
+
+  //----Set different EQ----
+  myDFPlayer.EQ(DFPLAYER_EQ_NORMAL);
+  myDFPlayer.setTimeOut(500); //Set serial communictaion time out 500ms
+
+  //----Set volume----
+  myDFPlayer.volume(20);  //Set volume value (0~30).
+  //myDFPlayer.play(2);
+
+  //--------------------------------trillll------------to indicate health
+  for (int i = 2; i < 3; i++)
+  {
+    triller(i);
+  }
+
+  //------------------with or-----without IR receiver
+  if (test == 0)
+  {
+    IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+    Serial.print(("Ready to receive IR signals of protocols: "));
+    printActiveIRProtocols(&Serial);
+    Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
+  }
+
+  timerIR = millis() + 50000;
+}
+
+void loop()
+{
+  //----------------------------------------------------------------with IR receiver
+  if (test == 0)
+    if (plays == 0)
+    {
+      if (IrReceiver.decode()) {
+
+        // Print a short summary of received data
+        IrReceiver.printIRResultShort(&Serial);
+        if (IrReceiver.decodedIRData.protocol == UNKNOWN) {
+          // We have an unknown protocol here, print more info
+          //  IrReceiver.printIRResultRawFormatted(&Serial, true);
+        }
+        Serial.println("---");
+
+        IrReceiver.resume(); // Enable receiving of the next value
+
+        int ir =  IrReceiver.decodedIRData.command;
+        Serial.println(ir);
+
+        if (ir == 0x10) {
+          Serial.println("start track0 0x10");
+          plays = 1;
+          //delay (500);
+          trackNumber = 0;
+          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
+          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+          myDFPlayer.play(1);
+
+        } else if (ir == 0x11) {
+          Serial.println("start track1 0x11");
+          plays = 1;
+          //delay (500);
+          trackNumber = 0;
+          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
+          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+          myDFPlayer.play(2);
+        }
+        else if (ir == 0x12) {
+          Serial.println("start track2 0x12");
+          plays = 1;
+          //delay (500);
+          trackNumber = 0;
+          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
+          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+          myDFPlayer.play(3);
+        }
+        else if (ir == 0x14) {
+          Serial.println("start welocme track 0x14");
+          plays = 1;
+          //delay (500);
+          trackNumber = 0;
+          getVibe( 6, 100, 1); getVibe( 6, 100, 1);
+          timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+          myDFPlayer.play(1);
+        }
+      }
+    }
+  //-----------------------------------//this is starting up a random track if there is no IR signal for too long
+  if ( timerIR < millis())
+  {
+    if (plays == 0) {
+      test = 1;
+      getVibe(7, 500, 1); getVibe(5, 500, 1); getVibe(7, 500, 1); getVibe(5, 500, 1);
+      Serial.println("start track without IR signal");
+    }
+    else
+    {
+      timerIR = millis() + 10000;
+    }
+  }
+
+  //---------------------------without IRreceiver - start play
+  if (test == 1)
+    if (plays == 0)
+    {
+      Serial.println("test started for playing without receiving IR signal");
+      plays = 1;
+      timer2 =  millis() + 500 + trackOneTimes[timeCounter++ ] * 1000;
+      int h = 3;
+      if ( h == 1 )
+      {
+        Serial.println("start 1 - welcoming");
+        trackNumber = 1;
+        myDFPlayer.play(1);
+      } else if ( h == 2 )
+      {
+        Serial.println("start 2 - sound 1");
+        trackNumber = 2;
+        myDFPlayer.play(2);
+      }
+      else if ( h == 3 )
+      {
+        Serial.println("start 3 - sound 2");
+        trackNumber = 3;
+        myDFPlayer.play(3);
+      }
+      else if ( h == 4 )
+      {
+        Serial.println("start 4 - sound 3");
+        trackNumber = 4;
+        myDFPlayer.play(4);
+      }
+
+
+      test = 2;
+    }
+
+  //playing behavior
+
+  if (plays == 1)
+    if ( trackNumber == 8) //beat for test
+    {
+      if ( timer2 < millis() ) {
+        TrilAll();
+        timer2 = millis() + 298300 / 2 - 100000;
+      }
+    } else if ( trackNumber == 7) //beat for test
+    {
+      if ( timer2 < millis() ) {
+        TrilAll();
+        timer2 = millis() + 210000  - 100000;
+      }
+    }
+    else if ( trackNumber == 11) //beat for test
+    {
+      if ( timer2 < millis() ) {
+        TrilAll();
+        timer2 = millis() + 298300  - 100000;
+      }
+    }
+    else if ( trackNumber == 0) //real soundTrack 1
+    {
+      track0(); //track0 behavior
+    }
+    else if ( trackNumber == 1) //real soundTrack 2
+    {
+      track1(); //track0 behavior
+    }
+    else if ( trackNumber == 2) //real soundTrack 3
+    {
+      track2(); //track0 behavior
+    }
+    else if ( trackNumber == 3) //real soundTrack 4 - welcoming and checking soundfile
+    {
+      track3(); //track0 behavior
+    }
+
+  if (myDFPlayer.available()) {
+    printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
+  }
+
+}
+
+
+//-------------------sound tracks to vibration patterns-----------------------
+
+void track0() {
+
+  if ( timer3 < micros() ) //overall beat pattern, use divider to regulate beat speed
+  {
+    if ( upper == 1)
+    {
+      getVibe2(2, 10, 100, 100);
+    }
+    else
+    {
+      getVibe2(7, 5, 100, 100);
+    }
+    timer3 = micros() + 298300 / divider ;
+  }
+
+  if ( timer2 < millis() ) { //local vibration patterns defined on the track appearance, getting data from the arrays
+
+    timer2 = millis() +  ( trackOneTimes[timeCounter ] - trackOneTimes[timeCounter - 1 ]) * 1000;
+
+    Serial.print( timeCounter );
+    Serial.print("\t  -  ");
+    Serial.print(trackOneTimes[timeCounter ]);
+    Serial.print("\t  -  ");
+    Serial.print(( trackOneTimes[timeCounter ] - trackOneTimes[timeCounter - 1 ]));
+    Serial.print("\t  -  ");
+    Serial.print(timer2   ); //totalTimeCOunter
+    Serial.print("\t  -  ");
+    Serial.print(millis()   );
+    Serial.println("\t  -  ");
+    //Serial.println(myStrings[timeCounter]);
+
+    timeCounter++;
+
+    switch (timeCounter) {
+      case 2:
+        pattern( 1,  300);
+        upper = 1;
+        break;
+      case 3:
+        pathVibe( 0, 200);
+        break;
+      case 4:
+        EXINplosion( 0, 200);
+        break;
+      case 5:
+        randomVibe( 5, 500);
+        break;
+      case 6:
+        leftRight( 0, 300);
+        upper = 0;
+        break;
+      case 7:
+        randomVibe( 5, 500);
+        break;
+      case 8:
+        leftRight( 1, 300);
+        break;
+      case 9:
+        getVibe6(2, 3, 4, 5, 6, 7, 200, 0) ;
+        break;
+      case 10:
+        randomVibe( 5, 500);
+        break;
+      case 11:
+        roundSound(100, 0, 100);
+        break;
+      case 12:
+        roundSound(100, 0, 100);
+        upper = 1;
+        break;
+      case 13:
+        roundSound(100, 0, 100);
+        break;
+      case 14:
+        randomVibe( 5, 500);
+        break;
+      case 15:
+        upDownSound(  0,  500) ;
+        divider = 3;
+        break;
+      case 16:
+        upDownSound(  1, 200) ;
+        upper = 0;
+        break;
+      case 17:
+        randomVibe( 5, 500);
+        break;
+      case 18:
+        randomVibe( 5, 500);
+        break;
+      case 19:
+        randomVibe( 5, 500);
+        break;
+      case 20:
+        randomVibe( 5, 500);
+        break;
+      case 21:
+        roundSound(100, 0, 100);
+        upper = 1;
+        break;
+      case 22:
+        roundSound(100, 0, 100);
+        break;
+      case 23:
+        roundSound(100, 0, 100);
+        break;
+      case 24:
+        randomVibe( 5, 500);
+        break;
+      case 25:
+        upDownSound(  0,  500) ;
+        upper = 0;
+        break;
+      case 26:
+        upDownSound(  1, 200) ;
+        break;
+      case 27:
+        randomVibe( 5, 500);
+        break;
+      case 28:
+        randomVibe( 5, 500);
+        break;
+      case 29:
+        randomVibe( 5, 500);
+        upper = 1;
+        break;
+      case 30:
+        randomVibe( 5, 500);
+        break;
+      case 31:
+        roundSound(100, 0, 100);
+        break;
+      case 32:
+        roundSound(100, 0, 100);
+        break;
+      case 33:
+        roundSound(100, 0, 100);
+        break;
+      case 34:
+        randomVibe( 5, 500);
+        upper = 1;
+        break;
+      case 35:
+        upDownSound(  0,  500) ;
+        break;
+      case 36:
+        upDownSound(  1, 200) ;
+        break;
+      case 37:
+        randomVibe( 5, 500);
+        break;
+      case 38:
+        randomVibe( 5, 500);
+        divider = 1;
+        break;
+      case 39:
+        randomVibe( 5, 500);
+        break;
+      case 40:
+        randomVibe( 5, 500);
+        upper = 0;
+        break;
+      case 41:
+        roundSound(100, 0, 100);
+        break;
+      case 42:
+        roundSound(100, 0, 100);
+        break;
+      case 43:
+        roundSound(100, 0, 100);
+        break;
+      case 44:
+        randomVibe( 5, 500);
+        divider = 2;
+        break;
+      case 45:
+        upDownSound(  0,  500) ;
+        break;
+      case 46:
+        upDownSound(  1, 200) ;
+        break;
+      case 47:
+        randomVibe( 5, 500);
+        break;
+      case 48:
+        randomVibe( 5, 500);
+        break;
+      case 49:
+        randomVibe( 5, 500);
+        divider = 1;
+        break;
+      case 50:
+        randomVibe( 5, 500);
+        upper = 1;
+        break;
+      case 51:
+        roundSound(100, 0, 100);
+        divider = 3;
+        break;
+      case 52:
+        roundSound(100, 0, 100);
+        divider = 1;
+        break;
+      case 53:
+        roundSound(100, 0, 100);
+        break;
+      case 54:
+        randomVibe( 5, 500);
+        break;
+      case 55:
+        upDownSound(  0,  500) ;
+        break;
+      case 56:
+        upDownSound(  1, 200) ;
+        divider = 3;
+        break;
+      case 57:
+        randomVibe( 5, 500);
+        break;
+      case 58:
+        randomVibe( 5, 500);
+        divider = 2;
+        break;
+      case 59:
+        randomVibe( 5, 500);
+        break;
+      case 60:
+        randomVibe( 5, 500);
+        break;
+      default:
+        randomVibe( 5, 500);
+        break;
+    }
+  }
+}
+
+void track1() { //welcoming track
+  Serial.println("welcoming track");
+  getVibe2(2, 10, 500, 1);
+  getVibe2(3, 10, 500, 1);
+  getVibe2(4, 10, 500, 1);
+  getVibe2(5, 10, 500, 1);
+}
+
+void track2() {
+  Serial.println("track2");
+
+  if ( timer2 < millis() ) //overall beat pattern, use divider to regulate beat speed
+  {
+    Serial.println("track2 - 2 10");
+    getVibe2(2, random(10, 100), 100, 0);
+    timer2 = millis() + 1000 + random(0, 1000);
+  }
+
+  if ( timer3 < micros() ) //overall beat pattern, use divider to regulate beat speed
+  {
+    Serial.println("track2 - 3, 9");
+    getVibe2(3, 9, 500, 1);
+    timer3 = millis() + 2300 + random(0, 3000);
+  }
+
+  if ( timer4 < millis() ) //overall beat pattern, use divider to regulate beat speed
+  {
+    Serial.println("track2 - 4 8");
+    getVibe2(4, 8, 500, 1);
+    timer4 = millis() + 3400 + random(0, 4000);
+  }
+
+  if ( timer5 < millis() ) //overall beat pattern, use divider to regulate beat speed
+  {
+    Serial.println("track2 - 5 7 6");
+    getVibe2(5, 7,  random(10, 200), 1);
+    getVibe(6,   random(10, 1000), 1);
+    timer5 = millis() + 7700 + random(0, 5000);
+  }
+}
+
+void track3() { ///welcoming track
+  Serial.println("track3");
+  if ( timer3 < micros() ) //overall beat pattern, use divider to regulate beat speed
+  {
+    getVibe2(2, 10, 100, 1);
+    int h = random(0, 4);
+    if ( h == 0)
+    {
+      getVibe2(2, 10, 100, 1);
+      getVibe4(2, 3, 9, 10, 100, 1);
+      getVibe6(2, 3, 4, 5, 6, 7, 100, 1);
+      getVibe4(2, 3, 9, 10, 100, 1);
+      getVibe2(2, 10, 100, 1);
+    } else if ( h == 1)
+    {
+      getVibe2(2, 10, 500, 1);
+      getVibe2(2, 10, 500, 1);
+    }
+    else if ( h == 2)
+    {
+      delay(1000);
+      getVibe2(2, 10, 800, 1);
+      delay(1000);
+    }
+    else if ( h == 3)
+    {
+      delay(5000);
+      getVibe2(2, 10, 1000, 1);
+      delay(5000);
+    }
+    timer3 = micros() + 9000 + random(0, 2000);
+  }
+}
+
+//-------------------soundPatterns-----------------------
+
+void triller(int which) {
+  digitalWrite(which, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(which + 1, HIGH);
+  delay(5);                       // wait for a second
+  digitalWrite(which, LOW);    // turn the LED off by making the voltage LOW
+  digitalWrite(which + 1, LOW);
+  delay(50);                       // wait for a second
+}
+
+void TrilAll() {
+  for (int i = 2; i < 10; i++)
+    digitalWrite(i, HIGH);
+
+  delay(100);
+  for (int i = 2; i < 10; i++)
+    digitalWrite(i, LOW);
+}
+
+void getVibe(int whichPIN, int whichLength, int addDelay) {
+  digitalWrite(whichPIN, HIGH);
+  delay(whichLength);
+  digitalWrite(whichPIN, LOW);
+  if ( addDelay == 1)
+    delay(whichLength);
+}
+
+void getVibe2(int whichPIN1, int whichPIN2, int whichLength, int addDelay) {
+  digitalWrite(whichPIN1, HIGH);
+  digitalWrite(whichPIN2, HIGH);
+  delay(whichLength);
+  digitalWrite(whichPIN1, LOW);
+  digitalWrite(whichPIN2, LOW);
+  if ( addDelay == 1)
+    delay(whichLength);
+}
+
+void getVibe4(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int whichLength, int addDelay) {
+  digitalWrite(whichPIN1, HIGH);
+  digitalWrite(whichPIN2, HIGH);
+  digitalWrite(whichPIN3, HIGH);
+  digitalWrite(whichPIN4, HIGH);
+  delay(whichLength);
+  digitalWrite(whichPIN1, LOW);
+  digitalWrite(whichPIN2, LOW);
+  digitalWrite(whichPIN3, LOW);
+  digitalWrite(whichPIN4, LOW);
+  if ( addDelay == 1)
+    delay(whichLength);
+}
+
+void getVibe5(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int whichPIN5, int whichLength, int addDelay) {
+  digitalWrite(whichPIN1, HIGH);
+  digitalWrite(whichPIN2, HIGH);
+  digitalWrite(whichPIN3, HIGH);
+  digitalWrite(whichPIN4, HIGH);
+  digitalWrite(whichPIN5, HIGH);
+  delay(whichLength);
+  digitalWrite(whichPIN1, LOW);
+  digitalWrite(whichPIN2, LOW);
+  digitalWrite(whichPIN3, LOW);
+  digitalWrite(whichPIN4, LOW);
+  digitalWrite(whichPIN5, LOW);
+  if ( addDelay == 1)
+    delay(whichLength);
+}
+
+void getVibe6(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int whichPIN5, int whichPIN6, int whichLength, int addDelay) {
+  digitalWrite(whichPIN1, HIGH);
+  digitalWrite(whichPIN2, HIGH);
+  digitalWrite(whichPIN3, HIGH);
+  digitalWrite(whichPIN4, HIGH);
+  digitalWrite(whichPIN5, HIGH);
+  digitalWrite(whichPIN6, HIGH);
+  delay(whichLength);
+  digitalWrite(whichPIN1, LOW);
+  digitalWrite(whichPIN2, LOW);
+  digitalWrite(whichPIN3, LOW);
+  digitalWrite(whichPIN4, LOW);
+  digitalWrite(whichPIN5, LOW);
+  digitalWrite(whichPIN6, LOW);
+  if ( addDelay == 1)
+    delay(whichLength);
+}
+
+void roundSound(int whichSpeed, int whichDir, int whichLength) {
+  if ( whichDir == 0 )
+  {
+    for (int i = 2; i < 11; i++)
+      getVibe( i, whichLength, 0);
+    delay(whichSpeed);
+  }
+  else if ( whichDir == 1 )
+  {
+    for (int i = 10; i > 1; i--)
+      getVibe( i, whichLength, 0);
+    delay(whichSpeed);
+  }
+}
+
+void upDownSound(  int whichDir, int whichLength) {
+  if ( whichDir == 0 )
+  {
+    getVibe2(5, 7, whichLength, 0);
+    getVibe2(4, 8, whichLength, 0);
+    getVibe( 6, whichLength, 0);
+    getVibe2(3, 9, whichLength, 0);
+    getVibe2(2, 10, whichLength, 0);
+  }
+  else if ( whichDir == 1 )
+  {
+    getVibe2(2, 10, whichLength, 0);
+    getVibe2(3, 9, whichLength, 0);
+    getVibe( 6, whichLength, 0);
+    getVibe2(4, 8, whichLength, 0);
+    getVibe2(5, 7, whichLength, 0);
+  }
+}
+
+void leftRight(  int whichDir, int whichLength) {
+  if ( whichDir == 0 )
+  {
+    getVibe( 2, whichLength, 0);
+    getVibe2(3, 4, whichLength, 0);
+    getVibe( 5, whichLength, 0);
+    getVibe( 6, whichLength, 0);
+    getVibe( 7, whichLength, 0);
+    getVibe2(8, 9, whichLength, 0);
+    getVibe( 10, whichLength, 0);
+  }
+  else if ( whichDir == 1 )
+  {
+    getVibe( 10, whichLength, 0);
+    getVibe2(8, 9, whichLength, 0);
+    getVibe( 7, whichLength, 0);
+    getVibe( 6, whichLength, 0);
+    getVibe( 5, whichLength, 0);
+    getVibe2(3, 4, whichLength, 0);
+    getVibe( 2, whichLength, 0);
+  }
+}
+
+void randomVibe(  int howMany, int whichLength) {
+  for (int i = 0; i < howMany; i++)
+  {
+    getVibe( i, whichLength, 0);
+  }
+}
+
+void EXINplosion( int whichDir, int whichLength) {
+  if ( whichDir == 0 )
+  {
+    getVibe( 6, whichLength, 0);
+    getVibe4( 3, 4, 9, 8, whichLength, 0);
+    getVibe4( 2, 5, 7, 10, whichLength, 0);
+  }
+  else if ( whichDir == 1 )
+  {
+    getVibe4( 2, 5, 7, 10, whichLength, 0);
+    getVibe4( 3, 4, 9, 8, whichLength, 0);
+    getVibe( 6, whichLength, 0);
+  }
+}
+
+void pathVibe( int whichDir, int whichLength) {
+  if ( whichDir == 0 )
+  {
+    getVibe( 2, whichLength, 1);
+    getVibe( 3, whichLength, 1);
+    getVibe( 6, whichLength, 1);
+    getVibe( 8, whichLength, 1);
+    getVibe( 7, whichLength, 1);
+    getVibe( 5, whichLength, 1);
+    getVibe( 6, whichLength, 1);
+    getVibe( 9, whichLength, 1);
+    getVibe( 10, whichLength, 1);
+  }
+  else if ( whichDir == 1 )
+  {
+    getVibe( 10, whichLength, 1);
+    getVibe( 9, whichLength, 1);
+    getVibe( 6, whichLength, 1);
+    getVibe( 5, whichLength, 1);
+    getVibe( 7, whichLength, 1);
+    getVibe( 8, whichLength, 1);
+    getVibe( 6, whichLength, 1);
+    getVibe( 3, whichLength, 1);
+    getVibe( 2, whichLength, 1);
+  }
+}
+
+void pattern(int whichDir, int whichLength) {
+  if ( whichDir == 0 )
+  {
+    getVibe5( 3, 4, 6, 9, 8, whichLength, 0);
+    getVibe4( 2, 10, 5, 7, whichLength, 0);
+  }
+  else if ( whichDir == 1 )
+  {
+    getVibe4( 2, 10, 5, 7, whichLength, 0);
+    getVibe5( 3, 4, 6, 9, 8, whichLength, 0);
+  }
+}
+
+//-------------------player events-----------------------
+
+void printDetail(uint8_t type, int value) {
+  switch (type) {
+    case TimeOut:
+      Serial.println(("Time Out!"));
+      break;
+    case WrongStack:
+      Serial.println(("Stack Wrong!"));
+      break;
+    case DFPlayerCardInserted:
+      Serial.println(("Card Inserted!"));
+      break;
+    case DFPlayerCardRemoved:
+      Serial.println(("Card Removed!"));
+      break;
+    case DFPlayerCardOnline:
+      Serial.println(("Card Online!"));
+      break;
+    case DFPlayerUSBInserted:
+      Serial.println("USB Inserted!");
+      break;
+    case DFPlayerUSBRemoved:
+      Serial.println("USB Removed!");
+      break;
+    case DFPlayerPlayFinished:
+      Serial.print(("Number:"));
+      Serial.print(value);
+      Serial.println((" Play Finished!"));
+      plays = 0;
+      delay(2000);
+      break;
+    case DFPlayerError:
+      Serial.print(("DFPlayerError:"));
+      switch (value) {
+        case Busy:
+          Serial.println(("Card not found"));
+          break;
+        case Sleeping:
+          Serial.println(("Sleeping"));
+          break;
+        case SerialWrongStack:
+          Serial.println(("Get Wrong Stack"));
+          break;
+        case CheckSumNotMatch:
+          Serial.println(("Check Sum Not Match"));
+          break;
+        case FileIndexOut:
+          Serial.println(("File Index Out of Bound"));
+          break;
+        case FileMismatch:
+          Serial.println(("Cannot Find File"));
+          break;
+        case Advertise:
+          Serial.println(("In Advertise"));
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+
+}
