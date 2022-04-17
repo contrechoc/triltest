@@ -1,0 +1,119 @@
+/*
+   SimpleSender.cpp
+
+    Demonstrates sending IR codes in standard format with address and command
+    An extended example for sending can be found as SendDemo.
+
+    Copyright (C) 2020-2021  Armin Joachimsmeyer
+    armin.joachimsmeyer@gmail.com
+
+    This file is part of Arduino-IRremote https://github.com/Arduino-IRremote/Arduino-IRremote.
+
+    MIT License
+*/
+#include <Arduino.h>
+
+/*
+   Define macros for input and output pin etc.
+*/
+
+
+//#define SEND_PWM_BY_TIMER
+//#define USE_NO_SEND_PWM
+//#define NO_LED_FEEDBACK_CODE // saves 418 bytes program space
+
+#include <IRremote.hpp>
+
+uint16_t sAddress = 0x0102;
+uint8_t sCommand = 0x10;
+uint8_t sRepeats = 0;
+
+int counter;
+
+
+
+
+void setup() {
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(115200);
+
+  // Just to know which program is running on my Arduino
+  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+
+  //pinMode(4, OUTPUT);
+  pinMode(6, OUTPUT);
+  digitalWrite(6, HIGH);
+  pinMode(5, OUTPUT);
+  digitalWrite(5, LOW);
+
+  pinMode(11, OUTPUT);
+  digitalWrite(11, HIGH);
+  pinMode(12, OUTPUT);
+  digitalWrite(12, LOW);
+  pinMode(10, INPUT);
+  digitalWrite(10, HIGH);
+
+  pinMode(2, OUTPUT);
+
+  pinMode(3, OUTPUT);
+  digitalWrite(3, LOW);
+
+  digitalWrite(2, HIGH);
+  delay(500);
+  digitalWrite(2, LOW);
+
+
+}
+
+
+void loop() {
+
+  int h = digitalRead( 10);
+  if (digitalRead(10) == 0 )
+  {
+    if ( sCommand == 0x10 )
+      sCommand = 0x11;
+    else if ( sCommand == 0x11 )
+      sCommand = 0x12;
+    else if ( sCommand == 0x12 )
+      sCommand = 0x14;
+    else if ( sCommand == 0x14 )
+      sCommand = 0x10;
+    Serial.print (" sending command: ");
+    Serial.println(sCommand);
+    digitalWrite(2, HIGH);
+    delay(2000);
+    digitalWrite(2, LOW);
+    delay(2000);
+  }
+
+  IRSEND(7);
+
+}
+
+void IRSEND(int whichPIN) {
+
+  IrSender.begin(whichPIN); // Start with IR_SEND_PIN as send pin and if NO_LED_FEEDBACK_CODE is NOT defined, enable feedback LED at default feedback LED pin
+  Serial.print(F("Ready to send IR signals at pin "));
+  Serial.print("  ");
+  Serial.print(whichPIN);
+  Serial.print("  ");
+  Serial.print (" sending command: ");
+  Serial.println(sCommand);
+  delay(200 );
+
+  sAddress = 0x102;
+  //sCommand = 0x10;
+
+  IrSender.sendNEC(sAddress, sCommand, 2);
+
+  for (int i = 0; i < sCommand - 0x10+1; i++) {
+    digitalWrite(2, HIGH);
+    delay(100);
+    digitalWrite(2, LOW);
+    delay(100);
+  }
+  delay(500);
+
+}
