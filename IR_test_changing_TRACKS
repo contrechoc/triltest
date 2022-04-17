@@ -1,0 +1,174 @@
+#if !defined(STR_HELPER)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#endif
+
+#include "Arduino.h"
+#include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
+
+SoftwareSerial mySoftwareSerial(11, 12); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+void printDetail(uint8_t type, int value);
+
+#if !defined(STR_HELPER)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#endif
+
+
+#include <IRremote.hpp>
+#define IR_RECEIVE_PIN 13
+
+int plays = 0;
+ static unsigned long timer = millis();
+ int trackNumber = 0;
+ int IRsignal = 0;
+
+void setup()
+{
+
+  mySoftwareSerial.begin(9600);
+  Serial.begin(115200);
+
+  Serial.println();
+  Serial.println(F("DFRobot DFPlayer Mini Demo"));
+  Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+
+  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while (true) {
+      delay(0); // Code to compatible with ESP8266 watch dog.
+    }
+  }
+  Serial.println(F("DFPlayer Mini online."));
+
+  myDFPlayer.volume(17);  //Set volume value. From 0 to 30
+  myDFPlayer.play(1);  //Play the first mp3
+  trackNumber = 1;
+  IRsignal = 0x10;
+  plays = 1;
+  
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+  Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
+}
+
+void loop()
+{
+  lookATOtherSignals();
+  
+}
+
+void lookATOtherSignals(){
+ if ( plays == 1)
+  {
+    if (IrReceiver.decode()) {
+      IrReceiver.resume(); // Enable receiving of the next value
+      delay(100);
+      int ir =  IrReceiver.decodedIRData.command;
+      delay(100);
+      Serial.print("-------------received-------while playing-------------:");
+      Serial.println(ir);
+      if ( (ir == 0x10) || (ir == 0x11) || (ir == 0x12) || (ir == 0x14))
+      {
+        if ( ir != IRsignal ) {
+          if (ir == 0x10) {
+            Serial.println("wanting - start track0 0x10");
+            trackNumber = 1;
+            IRsignal = 0x10;
+            myDFPlayer.play(trackNumber);
+          }
+          else if (ir == 0x11) {
+            Serial.println("wanting - start track0 0x11 - crying");
+            trackNumber = 2;
+            IRsignal = 0x11;
+            myDFPlayer.play(trackNumber);
+          }
+          else if (ir == 0x12) {
+            Serial.println("wanting - start track0 0x12");
+            trackNumber = 3;
+            IRsignal = 0x12;
+            myDFPlayer.play(trackNumber);
+          }
+          else if (ir == 0x14) {
+            Serial.println("wanting - start track0 0x14");
+            trackNumber = 4;
+            IRsignal = 0x14;
+            myDFPlayer.play(trackNumber);
+          }
+        }
+        else
+        {
+          Serial.println("dont allow to start the same track");
+        }
+      }
+    }
+  }
+
+  
+}
+
+void printDetail(uint8_t type, int value) {
+  switch (type) {
+    case TimeOut:
+      Serial.println(F("Time Out!"));
+      break;
+    case WrongStack:
+      Serial.println(F("Stack Wrong!"));
+      break;
+    case DFPlayerCardInserted:
+      Serial.println(F("Card Inserted!"));
+      break;
+    case DFPlayerCardRemoved:
+      Serial.println(F("Card Removed!"));
+      break;
+    case DFPlayerCardOnline:
+      Serial.println(F("Card Online!"));
+      break;
+    case DFPlayerUSBInserted:
+      Serial.println("USB Inserted!");
+      break;
+    case DFPlayerUSBRemoved:
+      Serial.println("USB Removed!");
+      break;
+    case DFPlayerPlayFinished:
+      Serial.print(F("Number:"));
+      Serial.print(value);
+      Serial.println(F(" Play Finished!"));
+      plays = 0;
+      break;
+    case DFPlayerError:
+      Serial.print(F("DFPlayerError:"));
+      switch (value) {
+        case Busy:
+          Serial.println(F("Card not found"));
+          break;
+        case Sleeping:
+          Serial.println(F("Sleeping"));
+          break;
+        case SerialWrongStack:
+          Serial.println(F("Get Wrong Stack"));
+          break;
+        case CheckSumNotMatch:
+          Serial.println(F("Check Sum Not Match"));
+          break;
+        case FileIndexOut:
+          Serial.println(F("File Index Out of Bound"));
+          break;
+        case FileMismatch:
+          Serial.println(F("Cannot Find File"));
+          break;
+        case Advertise:
+          Serial.println(F("In Advertise"));
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+
+}
