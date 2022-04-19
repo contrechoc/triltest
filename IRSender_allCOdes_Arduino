@@ -1,27 +1,5 @@
-/*
-   SimpleSender.cpp
 
-    Demonstrates sending IR codes in standard format with address and command
-    An extended example for sending can be found as SendDemo.
-
-    Copyright (C) 2020-2021  Armin Joachimsmeyer
-    armin.joachimsmeyer@gmail.com
-
-    This file is part of Arduino-IRremote https://github.com/Arduino-IRremote/Arduino-IRremote.
-
-    MIT License
-*/
 #include <Arduino.h>
-
-/*
-   Define macros for input and output pin etc.
-*/
-
-
-//#define SEND_PWM_BY_TIMER
-//#define USE_NO_SEND_PWM
-//#define NO_LED_FEEDBACK_CODE // saves 418 bytes program space
-
 #include <IRremote.hpp>
 
 uint16_t sAddress = 0x0102;
@@ -30,47 +8,41 @@ uint8_t sRepeats = 0;
 
 int counter;
 
-
-
-
 void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
 
-  // Just to know which program is running on my Arduino
-  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
-
-  //pinMode(4, OUTPUT);
+//for the IR receiver
   pinMode(6, OUTPUT);
   digitalWrite(6, HIGH);
   pinMode(5, OUTPUT);
   digitalWrite(5, LOW);
 
+//for the button 11 and 12 are 5V and GND - input on 10
   pinMode(11, OUTPUT);
   digitalWrite(11, HIGH);
   pinMode(12, OUTPUT);
   digitalWrite(12, LOW);
   pinMode(10, INPUT);
-  digitalWrite(10, HIGH);
+  digitalWrite(10, HIGH); //pull up
 
+//for the led - indicating the tracks
   pinMode(2, OUTPUT);
-
   pinMode(3, OUTPUT);
   digitalWrite(3, LOW);
 
+  //blinking the led for starting up
   digitalWrite(2, HIGH);
   delay(500);
   digitalWrite(2, LOW);
-
-
 }
 
 
 void loop() {
 
-  int h = digitalRead( 10);
-  if (digitalRead(10) == 0 )
+  int h = digitalRead( 10); 
+  if (digitalRead(10) == 0 ) //input on getting LOW from the button
   {
     if ( sCommand == 0x10 )
       sCommand = 0x11;
