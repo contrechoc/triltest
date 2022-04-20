@@ -60,7 +60,7 @@ void IRSEND(int whichPIN) {
     delay(500 );
 
   sAddress = 0x102;
-  sCommand = 0x14;
+  sCommand = 0x10;
 
   IrSender.sendNEC(sAddress, sCommand, sRepeats);
 
