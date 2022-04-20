@@ -99,21 +99,25 @@ void lookATOtherSignals() {
             Serial.println("wanting - start track0 0x10 - welcome");
             trackNumber = 1;
             IRsignal = 0x10;
+             myDFPlayer.volume(17); 
           }
           else if (ir == 0x11) {
             Serial.println("wanting - start track0 0x11 - crying");
             trackNumber = 2;
             IRsignal = 0x11;
+             myDFPlayer.volume(17); 
           }
           else if (ir == 0x12) {
             Serial.println("wanting - start track0 0x12 - exhale");
             trackNumber = 3;
             IRsignal = 0x12;
+             myDFPlayer.volume(17); 
           }
           else if (ir == 0x14) {
             Serial.println("wanting - start track0 0x14 - beats");
             trackNumber = 4;
             IRsignal = 0x14;
+             myDFPlayer.volume(13); 
           }
           myDFPlayer.play(trackNumber);
         }
