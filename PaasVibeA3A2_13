@@ -27,7 +27,7 @@
 
 // TG20 - ok verkeerde soundtracks - special values SoftwareSerial A3 A2 - normal bootloader IR:14  -
 
-
+#include <IRremote.hpp>
 #define IR_RECEIVE_PIN 13
 int volume = 17;
 
@@ -46,7 +46,7 @@ void printDetail(uint8_t type, int value);
 #define STR(x) STR_HELPER(x)
 #endif
 
-#include <IRremote.hpp>
+ 
 
 int plays = 0;
 static unsigned long timer = millis();
