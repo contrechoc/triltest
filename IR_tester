@@ -1,0 +1,45 @@
+
+#if !defined(STR_HELPER)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#endif
+
+#include <IRremote.hpp>
+#define IR_RECEIVE_PIN 2
+
+
+void setup() {
+
+    Serial.begin(115200);
+
+  Serial.println("start testing");
+  
+  // put your setup code here, to run once:
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+  Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
+
+//dit geeft de receiver stroom
+  pinMode(4, OUTPUT);
+   pinMode(3, OUTPUT);
+   digitalWrite(3, HIGH);
+    digitalWrite(4, LOW);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+    if (IrReceiver.decode()) {
+      IrReceiver.resume(); // Enable receiving of the next value
+      delay(100);
+      int ir =  IrReceiver.decodedIRData.command;
+      delay(100);
+
+        if ( (ir == 0x10) || (ir == 0x11) || (ir == 0x12) || (ir == 0x14))
+      {
+        Serial.print("ontvangen code: ");
+      }
+         Serial.println(ir);
+      }else{
+         //Serial.println("wel wat ontvangen, maar niet 0x10,0x11,0x12,0x14 (hexadecimaal), er staat dan 16,17,18 of 20");
+      }
+ 
+}
