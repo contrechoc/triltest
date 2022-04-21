@@ -90,6 +90,9 @@ void setup()
   Serial.println(F("DFPlayer Mini online."));
 
   myDFPlayer.volume(volume-3);  //Set volume value. From 0 to 30
+  
+    for (int i = 2; i < 11; i++)
+    pinMode(i, OUTPUT);
 
 //not TG05
   myDFPlayer.play(1);  //Play the first mp3
