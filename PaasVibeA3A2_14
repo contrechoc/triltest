@@ -107,6 +107,9 @@ void setup()
   //3 derde sound
   //4 welcome
   
+    for (int i = 2; i < 11; i++)
+    pinMode(i, OUTPUT);
+  
   trackNumber = 1;
   IRsignal = 0x10;
   plays = 0;
