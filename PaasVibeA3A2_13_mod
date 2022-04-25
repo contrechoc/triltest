@@ -53,7 +53,7 @@ static unsigned long timer = millis();
 int trackNumber = 0;
 int IRsignal = 0;
 
-static unsigned long timerIR = millis() + 10000;
+static unsigned long timerIR = millis();
 static unsigned long timer2 = millis();
 static unsigned long timer3 = millis();
 static unsigned long timer4 = millis();
@@ -92,7 +92,7 @@ void setup()
   myDFPlayer.volume(volume-3);  //Set volume value. From 0 to 30
 
 //not TG05
-  myDFPlayer.play(1);  //Play the first mp3
+ // myDFPlayer.play(1);  //Play the first mp3
 
   //TG13 - 1 gesnik - sound 1
   //TG13 - 2 welkom
@@ -114,6 +114,7 @@ void setup()
   IRsignal = 0x10;
   plays = 0;
   timerIR = millis() + 20000;
+  ifNoSignalForToLong();
 
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
   Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
@@ -163,6 +164,7 @@ void lookATOtherSignals() {
             IRsignal = 0x14;
              myDFPlayer.volume(volume); 
           }
+          if (trackNumber != 1)
           myDFPlayer.play(trackNumber);
         }
         else
@@ -265,7 +267,7 @@ void ifNoSignalForToLong() {
     }
     else
     {
-      timerIR = millis() + 10000;
+      timerIR = millis() + 5000;
     }
   }
 }
@@ -273,7 +275,7 @@ void ifNoSignalForToLong() {
 void vibrationWithTrack() {
   if ( trackNumber == 1) //real soundTrack 4 - welcoming and checking soundfile
   {
-    track3(); //track0 behavior
+    //track3(); //track0 behavior
   }
   else if ( trackNumber == 2)
   {
