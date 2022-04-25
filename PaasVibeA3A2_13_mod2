@@ -46,14 +46,14 @@ void printDetail(uint8_t type, int value);
 #define STR(x) STR_HELPER(x)
 #endif
 
- 
+
 
 int plays = 0;
 static unsigned long timer = millis();
 int trackNumber = 0;
 int IRsignal = 0;
 
-static unsigned long timerIR = millis();
+static unsigned long timerIR = millis() + 10000;
 static unsigned long timer2 = millis();
 static unsigned long timer3 = millis();
 static unsigned long timer4 = millis();
@@ -88,33 +88,22 @@ void setup()
     }
   }
   Serial.println(F("DFPlayer Mini online."));
+  
+    for (int i = 2; i < 11; i++)
+    pinMode(i, OUTPUT);
 
-  myDFPlayer.volume(volume-3);  //Set volume value. From 0 to 30
-
-//not TG05
- // myDFPlayer.play(1);  //Play the first mp3
-
-  //TG13 - 1 gesnik - sound 1
-  //TG13 - 2 welkom
-  //TG13 - 3 derde track - sound 3
-  //TG13 - 4 ander track - 
-
-//TG05
-    //myDFPlayer.play(4);  //Play the first mp3
+  myDFPlayer.volume(volume);  //Set volume value. From 0 to 30
 
   //1 gesnik eerste sound
   //2 heipaal tweemaal - tweede sound 
   //3 derde sound
   //4 welcome
   
-    for (int i = 2; i < 11; i++)
-    pinMode(i, OUTPUT);
-  
-  trackNumber = 1;
-  IRsignal = 0x10;
-  plays = 0;
-  timerIR = millis() + 20000;
-  ifNoSignalForToLong();
+  trackNumber = random(2,5);
+  //IRsignal = 0x10+ trackNumber;
+  plays = 1;
+  myDFPlayer.play(2);
+  timerIR = millis() + 5000;
 
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
   Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
@@ -164,7 +153,7 @@ void lookATOtherSignals() {
             IRsignal = 0x14;
              myDFPlayer.volume(volume); 
           }
-          if (trackNumber != 1)
+           if (trackNumber != 1)
           myDFPlayer.play(trackNumber);
         }
         else
@@ -260,8 +249,10 @@ void ifNoSignalForToLong() {
         trackNumber = 4;
         IRsignal = 0x14;
       }
+       if (trackNumber != 1){
       myDFPlayer.play(trackNumber);
       plays = 1;
+      }
       Serial.print ("track without signal ");
       Serial.println(trackNumber);
     }
@@ -275,7 +266,7 @@ void ifNoSignalForToLong() {
 void vibrationWithTrack() {
   if ( trackNumber == 1) //real soundTrack 4 - welcoming and checking soundfile
   {
-    //track3(); //track0 behavior
+    track1(); //track0 behavior
   }
   else if ( trackNumber == 2)
   {
@@ -283,7 +274,7 @@ void vibrationWithTrack() {
   }
   else if ( trackNumber == 3)
   {
-    track1(); //track0 behavior
+    //track3(); //track0 behavior
     // Serial.println("no vibration");
   }
   else if ( trackNumber == 4)
@@ -338,11 +329,9 @@ void track0() {
 
   if (random(0, 8) == 0)
     upper = !upper;
-    
   int k = random(0, 24);
   if (k == 0)
     getVibe6(6, 7, 8, 9, 3, 4, 300, 0);
-
 }
 
 void track1() {
@@ -357,9 +346,6 @@ void track1() {
     timer3 = micros() + hhh;
     getVibe2(3, 9, 250, 0);
   }
-
-  //if ((counter++) % 25 == 0)
-   // getVibe6(6, 7, 8, 9, 3, 4, 300, 0);
 }
 
 void track2() {
@@ -375,10 +361,6 @@ void track2() {
     timer2 = micros() + hhh;
     randomVibe(  random(1, 3), 200);
   }
-
- // if ((counter++) % 12 == 0)
-   // getVibe6(6, 7, 8, 9, 3, 4, 300, 0);
-
 }
 
 void track3() { //welcoming track
