@@ -95,7 +95,7 @@ void setup()
     pinMode(i, OUTPUT);
 
 //not TG05
-  myDFPlayer.play(1);  //Play the first mp3
+  //myDFPlayer.play(1);  //Play the first mp3
 
   //TG13 - 1 gesnik - sound 1
   //TG13 - 2 welkom
@@ -113,7 +113,8 @@ void setup()
   trackNumber = 1;
   IRsignal = 0x10;
   plays = 0;
-  timerIR = millis() + 20000;
+  ifNoSignalForToLong();
+  timerIR = millis() ;
 
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
   Serial.println(("at pin " STR(IR_RECEIVE_PIN)));
@@ -265,7 +266,7 @@ void ifNoSignalForToLong() {
     }
     else
     {
-      timerIR = millis() + 10000;
+      timerIR = millis() + 5000;
     }
   }
 }
@@ -273,7 +274,7 @@ void ifNoSignalForToLong() {
 void vibrationWithTrack() {
   if ( trackNumber == 1) //real soundTrack 4 - welcoming and checking soundfile
   {
-    track3(); //track0 behavior
+    //track3(); //track0 behavior
   }
   else if ( trackNumber == 2)
   {
