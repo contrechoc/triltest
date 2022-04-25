@@ -100,9 +100,9 @@ void setup()
   //4 welcome
   
   trackNumber = random(2,5);
-  IRsignal = 0x10+ trackNumber;
+  //IRsignal = 0x10+ trackNumber;
   plays = 1;
-  myDFPlayer.play(trackNumber);
+  myDFPlayer.play(2);
   timerIR = millis() + 5000;
 
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
@@ -266,7 +266,7 @@ void ifNoSignalForToLong() {
 void vibrationWithTrack() {
   if ( trackNumber == 1) //real soundTrack 4 - welcoming and checking soundfile
   {
-    track3(); //track0 behavior
+    track1(); //track0 behavior
   }
   else if ( trackNumber == 2)
   {
@@ -274,7 +274,7 @@ void vibrationWithTrack() {
   }
   else if ( trackNumber == 3)
   {
-    track1(); //track0 behavior
+    //track3(); //track0 behavior
     // Serial.println("no vibration");
   }
   else if ( trackNumber == 4)
