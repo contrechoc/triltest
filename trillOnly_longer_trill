@@ -1,5 +1,7 @@
 //only tril
 
+int trilfactor = 20;//trilfactor wordt gedeeld door 10, dus als trilfactor = 20, tweemaal zo lang
+
 int h = 0;
 
 int timeCounter;
@@ -230,6 +232,7 @@ void TrilAll() {
 }
 
 void getVibe(int whichPIN, int whichLength, int addDelay) {
+whichLength = whichLength * trilfactor/10; 
   digitalWrite(whichPIN, HIGH);
   delay(whichLength);
   digitalWrite(whichPIN, LOW);
@@ -238,6 +241,7 @@ void getVibe(int whichPIN, int whichLength, int addDelay) {
 }
 
 void getVibe2(int whichPIN1, int whichPIN2, int whichLength, int addDelay) {
+whichLength = whichLength * trilfactor/10; 
   digitalWrite(whichPIN1, HIGH);
   digitalWrite(whichPIN2, HIGH);
   delay(whichLength);
@@ -248,6 +252,7 @@ void getVibe2(int whichPIN1, int whichPIN2, int whichLength, int addDelay) {
 }
 
 void getVibe4(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int whichLength, int addDelay) {
+whichLength = whichLength * trilfactor/10; 
   digitalWrite(whichPIN1, HIGH);
   digitalWrite(whichPIN2, HIGH);
   digitalWrite(whichPIN3, HIGH);
@@ -262,6 +267,7 @@ void getVibe4(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int wh
 }
 
 void getVibe5(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int whichPIN5, int whichLength, int addDelay) {
+whichLength = whichLength * trilfactor/10;
   digitalWrite(whichPIN1, HIGH);
   digitalWrite(whichPIN2, HIGH);
   digitalWrite(whichPIN3, HIGH);
@@ -278,6 +284,7 @@ void getVibe5(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int wh
 }
 
 void getVibe6(int whichPIN1, int whichPIN2, int whichPIN3, int whichPIN4, int whichPIN5, int whichPIN6, int whichLength, int addDelay) {
+whichLength = whichLength * trilfactor/10; 
   digitalWrite(whichPIN1, HIGH);
   digitalWrite(whichPIN2, HIGH);
   digitalWrite(whichPIN3, HIGH);
